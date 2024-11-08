@@ -49,5 +49,3 @@ You can adjust the following settings in the code if needed:
 ## License
 
 This project is licensed under the MIT License.
-
-This Markdown file explains installation, usage, functionality, and customization of the bookmarklet, making it easy for users to understand and implement. Let me know if you need any changes!
