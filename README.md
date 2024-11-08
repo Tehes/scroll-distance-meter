@@ -32,9 +32,9 @@ This bookmarklet follows these steps:
 
 1.	Device Detection: The function getDeviceType determines whether the device is a smartphone, tablet, or desktop based on screen width.
 2.	Setting DPI Values: Based on the device type, the function getDpiForDevice selects a typical DPI value:
-    •	400 DPI for smartphones
-	•	264 DPI for tablets
-	•	96 DPI for desktops
+    -	400 DPI for smartphones
+	-	264 DPI for tablets
+	-	96 DPI for desktops
 3.	Calculating Scroll Distance: The calculateScrolledMeters function calculates the scrolled distance in meters based on the number of pixels scrolled and the physical size of each pixel.
 4.	Creating the Scroll Meter Overlay: The createScrollMeterElement function dynamically creates the scroll-meter element, applies styling, and ensures it remains on top of the page content.
 5.	Live Updates on Scroll: The overlay updates in real-time whenever you scroll, displaying the current distance in meters.
@@ -43,8 +43,8 @@ This bookmarklet follows these steps:
 
 You can adjust the following settings in the code if needed:
 
-•	DPI Values: These can be updated in the getDpiForDevice function.
-•	Overlay Style: The appearance of the overlay can be modified in createScrollMeterElement.
+-	DPI Values: These can be updated in the getDpiForDevice function.
+-	Overlay Style: The appearance of the overlay can be modified in createScrollMeterElement.
 
 ## License
 
