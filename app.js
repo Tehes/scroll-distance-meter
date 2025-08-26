@@ -1,71 +1,72 @@
-function getDeviceType() {
-    const width = screen.width;
+// --- CSS Meter Scroll Tracker -----------------------------------------------
+// Spec-exact conversion: 1 CSS px = 0.0254 / 96 meters
+const CSS_M_PER_PX = 0.0254 / 96;
 
-    if (width <= 768) {
-        return "phone";
-    } else if (width <= 1024) {
-        return "tablet";
-    } else {
-        return "desktop";
+const nf = new Intl.NumberFormat("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+function createHud() {
+  const el = document.createElement("div");
+  el.id = "scroll-meter";
+  Object.assign(el.style, {
+    position: "fixed",
+    bottom: "30px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    padding: "10px 20px",
+    backgroundColor: "#000",
+    borderRadius: "20px",
+    color: "#fff",
+    fontFamily: "Arial, Helvetica, sans-serif",
+    fontSize: "1rem",
+    boxShadow:
+      "rgba(0,0,0,.07) 0 1px 1px, rgba(0,0,0,.07) 0 2px 2px, rgba(0,0,0,.07) 0 4px 4px, rgba(0,0,0,.07) 0 8px 8px, rgba(0,0,0,.07) 0 16px 16px",
+    zIndex: "2147483647",
+    whiteSpace: "nowrap",
+    width: "fit-content",
+    pointerEvents: "none",     // don't block clicks
+    opacity: "0",              // fade-in on first render
+    transition: "opacity .25s ease"
+  });
+  el.textContent = "0,00 m";
+  document.body.appendChild(el);
+  return el;
+}
+
+const hud = createHud();
+
+// --- State -------------------------------------------------------------------
+let lastY = window.scrollY;
+let totalM = 0; 
+let rafPending = false;
+let fadeTimer = null;
+
+// --- Render ------------------------------------------------------------------
+function render() {
+  const val = totalM;
+  hud.textContent = `${nf.format(val)} m`;
+  hud.style.opacity = "1";
+  // auto fade after inactivity
+  clearTimeout(fadeTimer);
+  fadeTimer = setTimeout(() => (hud.style.opacity = "0.3"), 1500);
+}
+
+// --- Scroll handling (accumulate absolute pixel deltas) ----------------------
+function onScroll() {
+  if (rafPending) return;
+  rafPending = true;
+  requestAnimationFrame(() => { // requestAnimationFrame = run before next repaint, smoother UI
+    const y = window.scrollY;
+    const dyPx = Math.abs(y - lastY); // count both directions as distance
+    lastY = y;
+
+    if (dyPx > 0) {
+      totalM += dyPx * CSS_M_PER_PX;
+      render();
     }
+    rafPending = false;
+  });
 }
 
-function getDpiForDevice(deviceType) {
-    const dpiValues = {
-        phone: 400,    // Updated typical DPI value for smartphones
-        tablet: 264,   // Updated typical DPI value for tablets
-        desktop: 96    // Typical DPI value for desktop monitors
-    };
-
-    return dpiValues[deviceType] || 96;  // Fallback to 96 DPI
-}
-
-function calculateScrolledMeters() {
-    const deviceType = getDeviceType();
-    const dpi = getDpiForDevice(deviceType);
-
-    // Calculate the physical size of a pixel in meters
-    const pixelToMeterFactor = 0.0254 / dpi;  // 1 inch = 0.0254 meters
-
-    // Number of scrolled CSS pixels
-    const scrolledPixels = window.scrollY;
-
-    // Calculate the scrolled distance in meters
-    const scrolledMeters = scrolledPixels * pixelToMeterFactor;
-
-    return scrolledMeters;
-}
-
-function createScrollMeterElement() {
-    const scrollMeterElement = document.createElement("div");
-    scrollMeterElement.id = "scroll-meter";
-
-    // Set styles to match your provided CSS
-    scrollMeterElement.style.position = "fixed";
-    scrollMeterElement.style.bottom = "30px";
-    scrollMeterElement.style.left = "50%";
-    scrollMeterElement.style.transform = "translateX(-50%)";
-    scrollMeterElement.style.padding = "10px 20px";
-    scrollMeterElement.style.backgroundColor = "#000";
-    scrollMeterElement.style.borderRadius = "20px";
-    scrollMeterElement.style.color = "#fff";
-    scrollMeterElement.style.fontFamily = "Arial, Helvetica, sans-serif";
-    scrollMeterElement.style.fontSize = "1rem";
-    scrollMeterElement.style.boxShadow = "rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px";
-    scrollMeterElement.textContent = "0.00 m";
-    scrollMeterElement.style.zIndex = "2147483647";
-    scrollMeterElement.style.whiteSpace = "nowrap";
-    scrollMeterElement.style.width = "fit-content";
-
-    scrollMeterElement.textContent = "0.00 m";
-
-    document.body.appendChild(scrollMeterElement);
-    return scrollMeterElement;
-}
-
-const scrollMeterElement = createScrollMeterElement();
-
-window.addEventListener("scroll", () => {
-    const gescrollteMeter = calculateScrolledMeters().toFixed(2);
-    scrollMeterElement.textContent = `${gescrollteMeter} m`;
-});
+// passive:true = hint: this handler will not call preventDefault, improves scroll perf
+window.addEventListener("scroll", onScroll, { passive: true });
+render();
