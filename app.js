@@ -8,6 +8,7 @@ function createHud() {
   const el = document.createElement("div");
   el.id = "scroll-meter";
   Object.assign(el.style, {
+    all: "initial",
     position: "fixed",
     bottom: "30px",
     left: "50%",
@@ -17,7 +18,7 @@ function createHud() {
     borderRadius: "20px",
     color: "#fff",
     fontFamily: "Arial, Helvetica, sans-serif",
-    fontSize: "1rem",
+    fontSize: "16px",
     boxShadow:
       "rgba(0,0,0,.07) 0 1px 1px, rgba(0,0,0,.07) 0 2px 2px, rgba(0,0,0,.07) 0 4px 4px, rgba(0,0,0,.07) 0 8px 8px, rgba(0,0,0,.07) 0 16px 16px",
     zIndex: "2147483647",
